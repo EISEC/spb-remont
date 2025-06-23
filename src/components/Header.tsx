@@ -21,9 +21,10 @@ const Header = () => {
   }, []);
 
   const navigationItems = [
-    { href: '#services', label: 'Услуги' },
+    { href: '/services', label: 'Услуги', external: true },
     { href: '#portfolio', label: 'Наши работы' },
     { href: '#calculator', label: 'Калькулятор' },
+    { href: '/blog', label: 'Блог', external: true },
     { href: '#reviews', label: 'Отзывы' },
     { href: '#about', label: 'О нас' },
     { href: '#contact', label: 'Контакты' },
@@ -40,7 +41,7 @@ const Header = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Логотип */}
-          <Link href="#" className="flex items-center space-x-3 cursor-pointer">
+          <Link href="/" className="flex items-center space-x-3 cursor-pointer">
             <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
               <span className="text-white font-bold text-xl">А</span>
             </div>

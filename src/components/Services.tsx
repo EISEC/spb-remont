@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 import { 
   Home, 
   Building, 
@@ -13,19 +14,8 @@ import {
   HardHat,
   ArrowRight
 } from 'lucide-react';
-import { useModal } from './ModalProvider';
-import QuickForm from './forms/QuickForm';
 
 const Services = () => {
-  const { openModal } = useModal();
-
-  const handleLearnMore = (serviceType: string) => {
-    openModal(<QuickForm title={`Узнать подробнее о ${serviceType}`} subtitle="Оставьте заявку и получите подробную информацию об услуге" />);
-  };
-
-  const handleGetConsultation = () => {
-    openModal(<QuickForm title="Получить консультацию" subtitle="Опишите ваши потребности и получите профессиональную консультацию" />);
-  };
   const repairTypes = [
     {
       title: 'Ремонт класса "Эконом"',
@@ -33,7 +23,8 @@ const Services = () => {
       price: 'от 15 000 ₽/м²',
       features: ['Косметический ремонт', 'Базовые материалы', 'Быстрые сроки'],
       icon: Home,
-      gradient: 'from-green-500 to-emerald-600'
+      gradient: 'from-green-500 to-emerald-600',
+      slug: 'remont-ekonom'
     },
     {
       title: 'Ремонт класса "Стандарт"',
@@ -41,7 +32,8 @@ const Services = () => {
       price: 'от 25 000 ₽/м²',
       features: ['Полный ремонт', 'Качественные материалы', 'Дизайн-проект'],
       icon: Building,
-      gradient: 'from-blue-500 to-blue-600'
+      gradient: 'from-blue-500 to-blue-600',
+      slug: 'remont-standart'
     },
     {
       title: 'Ремонт класса "Люкс"',
@@ -49,7 +41,8 @@ const Services = () => {
       price: 'от 45 000 ₽/м²',
       features: ['Премиум материалы', 'Авторский дизайн', 'VIP сервис'],
       icon: HardHat,
-      gradient: 'from-purple-500 to-purple-600'
+      gradient: 'from-purple-500 to-purple-600',
+      slug: 'remont-lux'
     }
   ];
 
@@ -58,37 +51,43 @@ const Services = () => {
       title: 'Дизайн помещений',
       description: 'Создание уникального дизайн-проекта',
       icon: Palette,
-      color: 'text-pink-600'
+      color: 'text-pink-600',
+      slug: 'dizayn-pomeshcheniy'
     },
     {
       title: 'Сантехнические работы',
       description: 'Установка и замена сантехники',
       icon: Droplets,
-      color: 'text-blue-600'
+      color: 'text-blue-600',
+      slug: 'santehnicheskie-raboty'
     },
     {
       title: 'Электромонтажные работы',
       description: 'Монтаж электрики и освещения',
       icon: Zap,
-      color: 'text-yellow-600'
+      color: 'text-yellow-600',
+      slug: 'elektromontazhnye-raboty'
     },
     {
       title: 'Малярные работы',
       description: 'Покраска стен и потолков',
       icon: Brush,
-      color: 'text-green-600'
+      color: 'text-green-600',
+      slug: 'malyarnye-raboty'
     },
     {
       title: 'Отделочные работы',
       description: 'Укладка плитки, ламината, обоев',
       icon: Wrench,
-      color: 'text-gray-600'
+      color: 'text-gray-600',
+      slug: 'otdelochnye-raboty'
     },
     {
       title: 'Ремонт офисов',
       description: 'Корпоративный ремонт любой сложности',
       icon: Building,
-      color: 'text-indigo-600'
+      color: 'text-indigo-600',
+      slug: 'remont-ofisov'
     }
   ];
 
@@ -151,13 +150,13 @@ const Services = () => {
                   ))}
                 </ul>
 
-                <button 
-                  onClick={() => handleLearnMore(type.title)}
-                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex items-center justify-center group cursor-pointer"
+                <Link
+                  href={`/services/${type.slug}`}
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex items-center justify-center group"
                 >
                   Узнать подробнее
                   <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                </button>
+                </Link>
               </div>
             </motion.div>
           ))}
@@ -194,12 +193,21 @@ const Services = () => {
                   <service.icon className={`w-6 h-6 ${service.color}`} />
                 </div>
                 <div className="flex-1">
-                  <h4 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
-                    {service.title}
-                  </h4>
+                  <Link href={`/services/${service.slug}`}>
+                    <h4 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                      {service.title}
+                    </h4>
+                  </Link>
                   <p className="text-gray-600 text-sm">
                     {service.description}
                   </p>
+                  <Link
+                    href={`/services/${service.slug}`}
+                    className="inline-flex items-center text-blue-600 hover:text-blue-700 text-sm mt-2"
+                  >
+                    Подробнее
+                    <ArrowRight className="w-3 h-3 ml-1" />
+                  </Link>
                 </div>
               </div>
             </motion.div>
@@ -228,12 +236,6 @@ const Services = () => {
             >
               +7 (953) 371-34-17
             </a>
-            <button 
-              onClick={handleGetConsultation}
-              className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-all duration-200 cursor-pointer"
-            >
-              Получить консультацию
-            </button>
           </div>
         </motion.div>
       </div>

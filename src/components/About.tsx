@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Users, Award, Clock, Shield, CheckCircle } from 'lucide-react';
+import { Users, Award, Clock, Shield, CheckCircle, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 
 const About = () => {
   const stats = [
@@ -40,6 +41,31 @@ const About = () => {
           </p>
         </motion.div>
 
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl p-8 mb-16"
+        >
+          <div className="max-w-4xl mx-auto text-center">
+            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">
+              Ремонт и отделка квартир в Санкт-Петербурге — Качественно и с Гарантией
+            </h3>
+            <div className="text-lg text-gray-700 leading-relaxed space-y-4">
+              <p>
+                Современному человеку хочется жить в уютной и комфортной квартире, и если Вы решились на изменения в своей квартире, а возможно даже приобретаете новую — мы поможем воплотить все ваши идеи в реальность.
+              </p>
+              <p>
+                После нашего ремонта квартира будет радовать глаз, выглядеть современно и приносить Вам только положительные эмоции. Мы производим ремонт квартир в любом районе Санкт-Петербурга, позволяя каждому клиенту подобрать именно тот вариант ремонта, который ему нужен.
+              </p>
+              <p>
+                Обратившись к нам, Вы получаете разумную смету, высокое качество обслуживания, оперативность и профессиональную работу. Наши специалисты выполнят любой комплекс ремонтно-строительных и отделочных работ на самом высоком уровне качества.
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
         <div className="grid md:grid-cols-4 gap-8 mb-20">
           {stats.map((stat, index) => (
             <motion.div
@@ -75,9 +101,22 @@ const About = () => {
             </h3>
             <p className="text-lg text-gray-600 mb-8 leading-relaxed">
               Компания АМСТРОЙ работает на рынке ремонтно-строительных услуг уже более 15 лет. 
-              За это время мы завоевали доверие сотен клиентов благодаря профессиональному подходу, 
-              качественным материалам и соблюдению сроков.
+              Мы готовы максимально качественно выполнить как косметический ремонт квартир, так и комплексный VIP-ремонт апартаментов представительского класса. Реализуем проекты любой сложности с полным соблюдением технологий и требований.
             </p>
+
+            <div className="bg-gray-50 rounded-2xl p-6 mb-8">
+              <h4 className="text-xl font-bold text-gray-900 mb-4">Виды наших работ:</h4>
+              <div className="grid md:grid-cols-2 gap-3 text-sm text-gray-700">
+                <div>• Ремонт квартир класса «Люкс»</div>
+                <div>• Ремонт квартир класса «Стандарт»</div>
+                <div>• Ремонт квартир класса «Эконом»</div>
+                <div>• Ремонт коммерческих помещений</div>
+                <div>• Строительство загородных домов</div>
+                <div>• Отделка загородных домов</div>
+                <div>• Строительство бань</div>
+                <div>• Дизайн интерьера</div>
+              </div>
+            </div>
 
             <div className="space-y-4">
               {advantages.map((advantage, index) => (
@@ -93,6 +132,22 @@ const About = () => {
                   <span className="text-gray-700">{advantage}</span>
                 </motion.div>
               ))}
+            </div>
+
+            <div className="mt-8 p-6 bg-blue-50 rounded-2xl">
+              <h4 className="text-lg font-bold text-gray-900 mb-3">
+                Полезные статьи в нашем блоге
+              </h4>
+              <p className="text-gray-600 mb-4">
+                Читайте практические советы по ремонту, узнавайте о трендах дизайна и изучайте лайфхаки от профессионалов
+              </p>
+              <Link
+                href="/blog"
+                className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium"
+              >
+                Перейти в блог
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Link>
             </div>
           </motion.div>
 
