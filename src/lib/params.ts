@@ -56,5 +56,13 @@ export interface PageProps<T extends PageParams = PageParams> {
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export interface SlugPageProps extends PageProps<SlugParams> {}
-export interface IdPageProps extends PageProps<IdParams> {} 
+// Специализированные типы для часто используемых случаев
+export interface SlugPageProps {
+  params: Promise<SlugParams>;
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export interface IdPageProps {
+  params: Promise<IdParams>;
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+} 

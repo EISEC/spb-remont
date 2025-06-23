@@ -40,7 +40,7 @@ export function withPageLayout<P extends object>(
  * Декоратор для использования с классовыми компонентами
  */
 export const PageLayoutDecorator = (options?: WithPageLayoutOptions) => {
-  return function <T extends React.ComponentType<any>>(target: T): T {
+  return function <T extends React.ComponentType<Record<string, unknown>>>(target: T): T {
     return withPageLayout(target, options) as T;
   };
 };
