@@ -129,7 +129,7 @@ export interface WordPressPost {
   featured_media: number;
   categories: number[];
   tags: number[];
-  _embedded?: any;
+  _embedded?: unknown;
   // Добавьте другие поля по необходимости
 }
 

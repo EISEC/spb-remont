@@ -7,6 +7,7 @@ import { getSlugFromParams, type SlugPageProps } from '@/lib/params';
 import PageLayout from '@/components/layouts/PageLayout';
 import { getWordPressPosts } from '@/lib/wordpress-api';
 import { BlogPost } from '@/types';
+import Image from 'next/image';
 
 export async function generateStaticParams() {
   return Object.keys(SERVICES).map((slug) => ({
@@ -52,7 +53,7 @@ const ServicePageContent = async ({ params }: SlugPageProps) => {
       search: service.title.split(' ')[0] // ищем по ключевому слову из названия услуги
     });
     relatedPosts = posts;
-  } catch (e) {
+  } catch {
     relatedPosts = [];
   }
 
@@ -225,10 +226,12 @@ const ServicePageContent = async ({ params }: SlugPageProps) => {
               <div className="grid md:grid-cols-2 gap-6">
                 {relatedPosts.map((post) => (
                   <div key={post.slug} className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                    <img 
+                    <Image 
                       src={post.image} 
                       alt={post.title}
                       className="w-full h-48 object-cover"
+                      width={300}
+                      height={200}
                     />
                     <div className="p-6">
                       <span className="text-sm text-blue-600 font-medium">{post.category}</span>

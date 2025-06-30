@@ -1,9 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
-import { Search, ArrowRight, Calendar, User, Tag, Phone } from 'lucide-react';
-import { getWordPressPosts, getWordPressCategories, getPopularWordPressPosts } from '@/lib/wordpress-api';
+import { ArrowRight, Calendar, User, Tag, Phone } from 'lucide-react';
+import { getWordPressPosts, getPopularWordPressPosts } from '@/lib/wordpress-api';
 import PageLayout from '@/components/layouts/PageLayout';
-import AdBanner from '@/components/ui/AdBanner';
 import BlogSearch from '@/components/BlogSearch';
 import BlogImage from '@/components/BlogImage';
 import type { BlogPost } from '@/types';
@@ -14,9 +13,9 @@ export const metadata = {
   keywords: 'блог о ремонте, дизайн интерьера статьи, советы по ремонту, строительные материалы, ремонт своими руками',
 };
 
-export default async function BlogPage({ searchParams }: { searchParams: { page?: string } }) {
-  const page = Number(searchParams?.page) || 1;
-  const perPage = 12;
+export default async function BlogPage({ searchParams }: { searchParams?: URLSearchParams }) {
+  const page = Number(searchParams?.get?.('page') ?? 1) || 1;
+  const perPage = 6;
   const blogData = await getWordPressPosts({ perPage, page });
   const posts: BlogPost[] = blogData.posts;
   const totalPages = blogData.totalPages;
@@ -220,12 +219,12 @@ export default async function BlogPage({ searchParams }: { searchParams: { page?
                   <div className="bg-blue-600 rounded-xl p-6 text-center">
                     <h3 className="text-lg font-bold text-white mb-2">Остались вопросы?</h3>
                     <p className="text-blue-100 text-sm mb-4">Наши эксперты помогут вам с любым вопросом по ремонту и отделке.</p>
-                    <a
+                    <Link
                       href="/#contact"
                       className="w-full bg-white text-blue-600 font-semibold py-3 px-6 rounded-lg hover:bg-blue-50 transition-colors inline-block"
                     >
                       Задать вопрос
-                    </a>
+                    </Link>
                   </div>
                 </aside>
               </div>

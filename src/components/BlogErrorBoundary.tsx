@@ -5,7 +5,7 @@ import { AlertCircle, RefreshCw } from 'lucide-react';
 
 interface BlogErrorBoundaryProps {
   children: React.ReactNode;
-  fallbackComponent?: React.ComponentType<{ posts: any[] }>;
+  fallbackComponent?: React.ComponentType<{ posts: unknown[] }>;
 }
 
 export default class BlogErrorBoundary extends React.Component<BlogErrorBoundaryProps, { hasError: boolean }> {
@@ -50,7 +50,7 @@ export default class BlogErrorBoundary extends React.Component<BlogErrorBoundary
 // Компонент-обертка для блога с обработкой ошибок
 export const BlogWithErrorBoundary: React.FC<{ 
   children: React.ReactNode;
-  fallbackComponent?: React.ComponentType<{ posts: any[] }>;
+  fallbackComponent?: React.ComponentType<{ posts: unknown[] }>;
 }> = ({ children, fallbackComponent }) => {
   return (
     <BlogErrorBoundary fallbackComponent={fallbackComponent}>

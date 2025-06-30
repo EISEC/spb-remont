@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Calendar, User, Tag, ArrowRight } from 'lucide-react';
+import { ArrowLeft, Calendar, User, Tag } from 'lucide-react';
 import { 
   getWordPressPostBySlug, 
   getWordPressPosts,
@@ -70,7 +70,7 @@ const BlogPostContent = async ({ params }: SlugPageProps) => {
     .slice(0, 2);
 
   // Получаем связанные статьи
-  let relatedPosts: any[] = [];
+  let relatedPosts: BlogPost[] = [];
   try {
     // Сначала пытаемся получить связанные посты без категорий (просто последние посты, исключая текущий)
     relatedPosts = await getRelatedWordPressPosts(post.id, [], 3);

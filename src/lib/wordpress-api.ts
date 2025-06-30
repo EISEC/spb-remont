@@ -259,7 +259,7 @@ export async function getWordPressTags(): Promise<WordPressTag[]> {
  */
 async function transformWordPressPost(wpPost: WordPressPost): Promise<BlogPost> {
   // Получаем категории и теги если еще не загружены
-  const [categories, tags] = await Promise.all([
+  const [, tags] = await Promise.all([
     getWordPressCategories(),
     getWordPressTags()
   ]);
@@ -274,7 +274,7 @@ async function transformWordPressPost(wpPost: WordPressPost): Promise<BlogPost> 
     author: getPostAuthor(wpPost),
     date: wpPost.date,
     modified: wpPost.modified,
-    category: getCategoryName(wpPost.categories, categories),
+    category: getCategoryName(),
     readTime: calculateReadTime(wpPost.content.rendered),
     tags: getTagNames(wpPost.tags, tags),
     featured: wpPost.featured_media > 0
@@ -285,12 +285,14 @@ async function transformWordPressPost(wpPost: WordPressPost): Promise<BlogPost> 
  * Получение изображения поста
  */
 function getPostImage(wpPost: WordPressPost): string {
-  const featuredMedia = wpPost._embedded?.['wp:featuredmedia'];
-  
-  if (featuredMedia && featuredMedia.length > 0) {
-    return featuredMedia[0].source_url;
+  const embedded = wpPost._embedded as unknown;
+  let featuredMedia: unknown = undefined;
+  if (embedded && typeof embedded === 'object' && 'wp:featuredmedia' in embedded) {
+    featuredMedia = (embedded as { ['wp:featuredmedia']?: unknown })['wp:featuredmedia'];
   }
-
+  if (Array.isArray(featuredMedia) && featuredMedia.length > 0 && typeof featuredMedia[0] === 'object' && featuredMedia[0] !== null && 'source_url' in featuredMedia[0]) {
+    return (featuredMedia[0] as { source_url: string }).source_url;
+  }
   // Fallback изображение
   return '/images/blog-placeholder.svg';
 }
@@ -299,19 +301,21 @@ function getPostImage(wpPost: WordPressPost): string {
  * Получение автора поста
  */
 function getPostAuthor(wpPost: WordPressPost): string {
-  const author = wpPost._embedded?.author;
-  
-  if (author && author.length > 0) {
-    return author[0].name;
+  const embedded = wpPost._embedded as unknown;
+  let author: unknown = undefined;
+  if (embedded && typeof embedded === 'object' && 'author' in embedded) {
+    author = (embedded as { author?: unknown })['author'];
   }
-
+  if (Array.isArray(author) && author.length > 0 && typeof author[0] === 'object' && author[0] !== null && 'name' in author[0]) {
+    return (author[0] as { name: string }).name;
+  }
   return 'АМСТРОЙ';
 }
 
 /**
  * Получение названия категории
  */
-function getCategoryName(categoryIds: number[], categories: WordPressCategory[]): string {
+function getCategoryName(): string {
   // Всегда возвращаем "Блог" для единообразия
   return 'Блог';
 }
