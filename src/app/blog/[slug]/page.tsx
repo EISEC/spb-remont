@@ -9,12 +9,16 @@ import {
   generateBlogStaticParams 
 } from '@/lib/wordpress-api';
 import { SERVICES } from '@/lib/constants';
-import { getSlugFromParams, type SlugPageProps } from '@/lib/params';
 import { BlogPost } from '@/types';
 import PageLayout from '@/components/layouts/PageLayout';
 import AdBanner from '@/components/ui/AdBanner';
 import BlogImage from '@/components/BlogImage';
 import TableOfContents from '@/components/TableOfContents';
+
+interface PageProps {
+  params: Promise<{ slug: string }>;
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+}
 
 export async function generateStaticParams() {
   try {
@@ -25,8 +29,8 @@ export async function generateStaticParams() {
   }
 }
 
-export async function generateMetadata({ params }: SlugPageProps) {
-  const slug = await getSlugFromParams(params);
+export async function generateMetadata({ params }: PageProps) {
+  const { slug } = await params;
   const post = await getWordPressPostBySlug(slug);
   
   if (!post) {
@@ -53,8 +57,8 @@ export async function generateMetadata({ params }: SlugPageProps) {
   };
 }
 
-const BlogPostContent = async ({ params }: SlugPageProps) => {
-  const slug = await getSlugFromParams(params);
+const BlogPostContent = async ({ params }: PageProps) => {
+  const { slug } = await params;
   const post = await getWordPressPostBySlug(slug);
   
   if (!post) {
@@ -319,12 +323,10 @@ const BlogPostContent = async ({ params }: SlugPageProps) => {
   );
 };
 
-const BlogPostPage = async (props: SlugPageProps) => {
+export default async function BlogPostPage(props: PageProps) {
   return (
     <PageLayout>
       <BlogPostContent {...props} />
     </PageLayout>
   );
-};
-
-export default BlogPostPage; 
+} 

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Clock, CheckCircle, ArrowRight, Phone } from 'lucide-react';
 import { SERVICES } from '@/lib/constants';
-import { getSlugFromParams, type SlugPageProps } from '@/lib/params';
+import { getSlugFromParams, type SlugParams } from '@/lib/params';
 import PageLayout from '@/components/layouts/PageLayout';
 import { getWordPressPosts } from '@/lib/wordpress-api';
 import { BlogPost } from '@/types';
@@ -15,8 +15,9 @@ export async function generateStaticParams() {
   }));
 }
 
-export async function generateMetadata({ params }: SlugPageProps) {
-  const slug = await getSlugFromParams(params);
+export async function generateMetadata({ params }: { params: Promise<SlugParams> }) {
+  const paramsResolved = await params;
+  const slug = getSlugFromParams(paramsResolved);
   const service = SERVICES[slug as keyof typeof SERVICES];
   
   if (!service) {
@@ -32,8 +33,9 @@ export async function generateMetadata({ params }: SlugPageProps) {
   };
 }
 
-const ServicePageContent = async ({ params }: SlugPageProps) => {
-  const slug = await getSlugFromParams(params);
+const ServicePageContent = async ({ params }: { params: Promise<SlugParams> }) => {
+  const paramsResolved = await params;
+  const slug = getSlugFromParams(paramsResolved);
   const service = SERVICES[slug as keyof typeof SERVICES];
   
   if (!service) {
@@ -270,7 +272,7 @@ const ServicePageContent = async ({ params }: SlugPageProps) => {
   );
 };
 
-const ServicePage = async (props: SlugPageProps) => {
+const ServicePage = async (props: { params: Promise<SlugParams>; searchParams?: Promise<{ [key: string]: string | string[] | undefined }> }) => {
   return (
     <PageLayout>
       <ServicePageContent {...props} />

@@ -13,8 +13,9 @@ export const metadata = {
   keywords: 'блог о ремонте, дизайн интерьера статьи, советы по ремонту, строительные материалы, ремонт своими руками',
 };
 
-export default async function BlogPage({ searchParams }: { searchParams?: URLSearchParams }) {
-  const page = Number(searchParams?.get?.('page') ?? 1) || 1;
+export default async function BlogPage({ searchParams }: { searchParams?: Promise<{ [key: string]: string | string[] | undefined }> }) {
+  const searchParamsResolved = await searchParams;
+  const page = Number(searchParamsResolved?.page ?? 1) || 1;
   const perPage = 6;
   const blogData = await getWordPressPosts({ perPage, page });
   const posts: BlogPost[] = blogData.posts;

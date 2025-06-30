@@ -155,7 +155,7 @@ const BlogSearch: React.FC<BlogSearchProps> = ({
                   onClick={handleResultClick}
                   className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                 >
-                  Показать все результаты для "{query}" →
+                  Показать все результаты для &quot;{query}&quot; &rarr;
                 </Link>
               </div>
             </>
@@ -163,7 +163,7 @@ const BlogSearch: React.FC<BlogSearchProps> = ({
             <div className="p-8 text-center">
               <Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-500 text-sm">
-                По запросу "{query}" ничего не найдено
+                По запросу &quot;{query}&quot; ничего не найдено
               </p>
               <p className="text-gray-400 text-xs mt-1">
                 Попробуйте изменить поисковый запрос
