@@ -101,6 +101,86 @@
       @apply py-24;
     }
   }
+
+  /* Стили для статей блога */
+  .prose {
+    @apply max-w-none;
+  }
+
+  .prose h2 {
+    @apply text-2xl font-bold text-gray-900 mt-8 mb-4;
+    scroll-margin-top: 5rem; /* 80px для фиксированного хедера */
+  }
+
+  .prose h3 {
+    @apply text-xl font-bold text-gray-900 mt-6 mb-3;
+    scroll-margin-top: 5rem;
+  }
+
+  .prose h4 {
+    @apply text-lg font-semibold text-gray-900 mt-4 mb-2;
+    scroll-margin-top: 5rem;
+  }
+
+  .prose p {
+    @apply text-gray-700 leading-relaxed mb-4;
+  }
+
+  .prose ul, .prose ol {
+    @apply mb-4 pl-6;
+  }
+
+  .prose li {
+    @apply mb-2 text-gray-700;
+  }
+
+  .prose a {
+    @apply text-blue-600 hover:text-blue-700 underline transition-colors;
+  }
+
+  .prose blockquote {
+    @apply border-l-4 border-blue-500 pl-4 py-2 bg-blue-50 rounded-r-lg my-6 italic;
+  }
+
+  .prose img {
+    @apply rounded-lg shadow-sm my-6 w-full h-auto;
+  }
+
+  .prose strong {
+    @apply font-semibold text-gray-900;
+  }
+
+  .prose em {
+    @apply italic;
+  }
+
+  .prose code {
+    @apply bg-gray-100 px-2 py-1 rounded text-sm font-mono text-gray-800;
+  }
+
+  .prose pre {
+    @apply bg-gray-900 text-white p-4 rounded-lg overflow-x-auto my-6;
+  }
+
+  .prose pre code {
+    @apply bg-transparent p-0 text-white;
+  }
+
+  .prose table {
+    @apply w-full border-collapse border border-gray-300 my-6;
+  }
+
+  .prose th, .prose td {
+    @apply border border-gray-300 px-4 py-2;
+  }
+
+  .prose th {
+    @apply bg-gray-100 font-semibold;
+  }
+
+  .prose hr {
+    @apply border-gray-300 my-8;
+  }
 }
 
 @layer utilities {

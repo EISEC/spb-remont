@@ -2,9 +2,11 @@ import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Clock, CheckCircle, ArrowRight, Phone } from 'lucide-react';
-import { SERVICES, BLOG_POSTS } from '@/lib/constants';
+import { SERVICES } from '@/lib/constants';
 import { getSlugFromParams, type SlugPageProps } from '@/lib/params';
 import PageLayout from '@/components/layouts/PageLayout';
+import { getWordPressPosts } from '@/lib/wordpress-api';
+import { BlogPost } from '@/types';
 
 export async function generateStaticParams() {
   return Object.keys(SERVICES).map((slug) => ({
@@ -42,13 +44,17 @@ const ServicePageContent = async ({ params }: SlugPageProps) => {
     .filter(s => s.slug !== service.slug)
     .slice(0, 3);
 
-  // Получаем связанные статьи блога
-  const relatedPosts = BLOG_POSTS
-    .filter(post => 
-      post.title.toLowerCase().includes(service.title.toLowerCase().split(' ')[0]) ||
-      post.tags.some(tag => service.title.toLowerCase().includes(tag))
-    )
-    .slice(0, 2);
+  // Получаем связанные статьи блога через API
+  let relatedPosts: BlogPost[] = [];
+  try {
+    const { posts } = await getWordPressPosts({
+      perPage: 2,
+      search: service.title.split(' ')[0] // ищем по ключевому слову из названия услуги
+    });
+    relatedPosts = posts;
+  } catch (e) {
+    relatedPosts = [];
+  }
 
   return (
     <>
@@ -229,7 +235,7 @@ const ServicePageContent = async ({ params }: SlugPageProps) => {
                       <h3 className="text-lg font-bold text-gray-900 mb-2 mt-1">
                         {post.title}
                       </h3>
-                      <p className="text-gray-600 mb-4 text-sm">
+                      <p className="text-gray-600 mb-4 text-sm line-clamp-2">
                         {post.excerpt}
                       </p>
                       <Link

@@ -2,37 +2,60 @@ import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Calendar, User, Tag, ArrowRight } from 'lucide-react';
-import { BLOG_POSTS, SERVICES } from '@/lib/constants';
+import { 
+  getWordPressPostBySlug, 
+  getWordPressPosts,
+  getRelatedWordPressPosts, 
+  generateBlogStaticParams 
+} from '@/lib/wordpress-api';
+import { SERVICES } from '@/lib/constants';
 import { getSlugFromParams, type SlugPageProps } from '@/lib/params';
+import { BlogPost } from '@/types';
 import PageLayout from '@/components/layouts/PageLayout';
 import AdBanner from '@/components/ui/AdBanner';
+import BlogImage from '@/components/BlogImage';
+import TableOfContents from '@/components/TableOfContents';
 
 export async function generateStaticParams() {
-  return BLOG_POSTS.map((post) => ({
-    slug: post.slug,
-  }));
+  try {
+    return await generateBlogStaticParams();
+  } catch (error) {
+    console.error('Error generating static params:', error);
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: SlugPageProps) {
   const slug = await getSlugFromParams(params);
-  const post = BLOG_POSTS.find(p => p.slug === slug);
+  const post = await getWordPressPostBySlug(slug);
   
   if (!post) {
     return {
-      title: 'Статья не найдена',
+      title: 'Статья не найдена - АМСТРОЙ',
+      description: 'Запрашиваемая статья не найдена.',
     };
   }
 
   return {
     title: `${post.title} - АМСТРОЙ`,
     description: post.excerpt,
-    keywords: `${post.tags.join(', ')}, ремонт спб, ${post.category.toLowerCase()}`
+    keywords: `${post.tags.join(', ')}, ремонт спб, ${post.category.toLowerCase()}`,
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      images: [post.image],
+      type: 'article',
+      publishedTime: post.date,
+      modifiedTime: post.modified,
+      authors: [post.author],
+      tags: post.tags,
+    },
   };
 }
 
 const BlogPostContent = async ({ params }: SlugPageProps) => {
   const slug = await getSlugFromParams(params);
-  const post = BLOG_POSTS.find(p => p.slug === slug);
+  const post = await getWordPressPostBySlug(slug);
   
   if (!post) {
     notFound();
@@ -41,18 +64,33 @@ const BlogPostContent = async ({ params }: SlugPageProps) => {
   // Получаем связанные услуги
   const relatedServices = Object.values(SERVICES)
     .filter(service => 
-      post.tags.some(tag => service.title.toLowerCase().includes(tag)) ||
+      post.tags.some(tag => service.title.toLowerCase().includes(tag.toLowerCase())) ||
       service.title.toLowerCase().includes(post.title.toLowerCase().split(' ')[0])
     )
     .slice(0, 2);
 
-  // Получаем связанные статьи (исключаем текущую)
-  const relatedPosts = BLOG_POSTS
-    .filter(p => p.slug !== post.slug && (
-      p.category === post.category ||
-      p.tags.some(tag => post.tags.includes(tag))
-    ))
-    .slice(0, 3);
+  // Получаем связанные статьи
+  let relatedPosts: any[] = [];
+  try {
+    // Сначала пытаемся получить связанные посты без категорий (просто последние посты, исключая текущий)
+    relatedPosts = await getRelatedWordPressPosts(post.id, [], 3);
+    
+         // Если не получилось, попробуем получить просто последние посты
+     if (relatedPosts.length === 0) {
+       const { posts: latestPosts } = await getWordPressPosts({ perPage: 4 });
+       relatedPosts = latestPosts.filter((p: BlogPost) => p.id !== post.id).slice(0, 3);
+     }
+   } catch (error) {
+     console.error('Error fetching related posts:', error);
+     // В случае ошибки пытаемся получить просто последние посты
+     try {
+       const { posts: latestPosts } = await getWordPressPosts({ perPage: 4 });
+       relatedPosts = latestPosts.filter((p: BlogPost) => p.id !== post.id).slice(0, 3);
+    } catch (fallbackError) {
+      console.error('Fallback also failed:', fallbackError);
+      relatedPosts = [];
+    }
+  }
 
   return (
     <>
@@ -115,10 +153,11 @@ const BlogPostContent = async ({ params }: SlugPageProps) => {
 
                 {/* Изображение */}
                 <div className="mb-8">
-                  <img 
+                  <BlogImage
                     src={post.image} 
                     alt={post.title}
                     className="w-full h-96 object-cover rounded-xl"
+                    priority={true}
                   />
                 </div>
 
@@ -127,33 +166,36 @@ const BlogPostContent = async ({ params }: SlugPageProps) => {
                   <AdBanner type="horizontal" />
                 </div>
 
+                {/* Содержание статьи */}
+                <TableOfContents content={post.content} className="mb-8" />
+
                 {/* Контент статьи */}
                 <div className="prose prose-lg max-w-none mb-12">
-                  <div className="text-gray-700 leading-relaxed space-y-6">
-                    {post.content.split('\n\n').map((paragraph, index) => (
-                      <p key={index} className="text-lg leading-relaxed">
-                        {paragraph}
-                      </p>
-                    ))}
-                  </div>
+                  <div 
+                    className="article-content"
+                    dangerouslySetInnerHTML={{ __html: post.content }}
+                  />
                 </div>
 
                 {/* Теги */}
                 {post.tags.length > 0 && (
-                  <div className="mb-12 p-6 bg-gray-50 rounded-xl">
+                  <div className="mb-12 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
                     <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                      <Tag className="w-5 h-5 mr-2" />
+                      <Tag className="w-5 h-5 mr-2 text-blue-600" />
                       Теги статьи
                     </h3>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-3">
                       {post.tags.map((tag) => (
                         <span
                           key={tag}
-                          className="bg-white text-gray-700 px-4 py-2 rounded-lg text-sm border border-gray-200 hover:border-blue-300 hover:text-blue-700 transition-colors"
+                          className="bg-white text-gray-700 px-4 py-2 rounded-full text-sm font-medium border border-blue-200 hover:border-blue-400 hover:text-blue-700 hover:shadow-md transition-all duration-200 cursor-pointer"
                         >
                           #{tag}
                         </span>
                       ))}
+                    </div>
+                    <div className="mt-4 text-xs text-gray-500">
+                      Нажмите на тег, чтобы найти похожие статьи
                     </div>
                   </div>
                 )}
@@ -197,34 +239,36 @@ const BlogPostContent = async ({ params }: SlugPageProps) => {
                   {/* Реклама */}
                   <AdBanner type="vertical" />
                   
-                  {/* Популярные статьи */}
+                  {/* Связанные статьи */}
+                  {relatedPosts.length > 0 && (
                   <div className="bg-gray-50 rounded-xl p-6">
                     <h3 className="text-lg font-bold text-gray-900 mb-4">
-                      Популярные статьи
+                        Похожие статьи
                     </h3>
                     <div className="space-y-4">
-                      {BLOG_POSTS.slice(0, 3).map((popularPost) => (
-                        <div key={popularPost.slug} className="flex space-x-3">
-                          <img 
-                            src={popularPost.image} 
-                            alt={popularPost.title}
+                                                 {relatedPosts.map((relatedPost) => (
+                           <div key={relatedPost.slug} className="flex space-x-3">
+                             <BlogImage
+                               src={relatedPost.image} 
+                               alt={relatedPost.title}
                             className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
                           />
                           <div>
                             <Link 
-                              href={`/blog/${popularPost.slug}`}
+                                href={`/blog/${relatedPost.slug}`}
                               className="text-sm font-medium text-gray-900 hover:text-blue-600 line-clamp-2"
                             >
-                              {popularPost.title}
+                                {relatedPost.title}
                             </Link>
                             <div className="text-xs text-gray-500 mt-1">
-                              {new Date(popularPost.date).toLocaleDateString('ru-RU')}
+                                {new Date(relatedPost.date).toLocaleDateString('ru-RU')}
                             </div>
                           </div>
                         </div>
                       ))}
                     </div>
                   </div>
+                  )}
                   
                   {/* Наши услуги */}
                   <div className="bg-blue-50 rounded-xl p-6">
@@ -232,78 +276,45 @@ const BlogPostContent = async ({ params }: SlugPageProps) => {
                       Нужен ремонт?
                     </h3>
                     <p className="text-sm text-gray-600 mb-4">
-                      Профессиональный ремонт квартир в Санкт-Петербурге
+                      Профессиональный ремонт квартир в Санкт-Петербурге. Качество, надежность, гарантия.
                     </p>
+                    <div className="space-y-2">
+                      <Link 
+                        href="/calculator"
+                        className="block w-full bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors text-center"
+                      >
+                        Рассчитать стоимость
+                      </Link>
                     <Link
                       href="/services"
-                      className="inline-flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors w-full justify-center"
+                        className="block w-full bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-50 transition-colors text-center"
                     >
                       Наши услуги
-                      <ArrowRight className="w-4 h-4 ml-1" />
                     </Link>
+                    </div>
                   </div>
 
-                  {/* Квадратная реклама */}
-                  <AdBanner type="square" />
+                  {/* Контакты */}
+                  <div className="bg-gray-900 text-white rounded-xl p-6">
+                    <h3 className="text-lg font-bold mb-4">
+                      Остались вопросы?
+                    </h3>
+                    <p className="text-sm text-gray-300 mb-4">
+                      Получите бесплатную консультацию наших специалистов
+                    </p>
+                    <a 
+                      href="tel:+79533713417"
+                      className="block w-full bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors text-center"
+                    >
+                      📞 +7 (953) 371-34-17
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </article>
-
-      {/* Связанные статьи */}
-      {relatedPosts.length > 0 && (
-        <section className="py-16 bg-gray-50">
-          <div className="container mx-auto px-4">
-            <div className="max-w-6xl mx-auto">
-              <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-                Читайте также
-              </h2>
-              
-              <div className="grid md:grid-cols-3 gap-6">
-                {relatedPosts.map((relatedPost) => (
-                  <article key={relatedPost.slug} className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                    <img 
-                      src={relatedPost.image} 
-                      alt={relatedPost.title}
-                      className="w-full h-48 object-cover"
-                    />
-                    <div className="p-6">
-                      <span className="text-sm text-blue-600 font-medium">
-                        {relatedPost.category}
-                      </span>
-                      <h3 className="text-lg font-bold text-gray-900 mb-2 mt-1">
-                        {relatedPost.title}
-                      </h3>
-                      <p className="text-gray-600 mb-4 text-sm">
-                        {relatedPost.excerpt}
-                      </p>
-                      <Link
-                        href={`/blog/${relatedPost.slug}`}
-                        className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium text-sm"
-                      >
-                        Читать статью
-                        <ArrowRight className="w-4 h-4 ml-1" />
-                      </Link>
-                    </div>
-                  </article>
-                ))}
-              </div>
-              
-              <div className="text-center mt-8">
-                <Link
-                  href="/blog"
-                  className="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-blue-700 transition-colors"
-                >
-                  Все статьи блога
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
     </>
   );
 };

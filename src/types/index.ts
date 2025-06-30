@@ -96,4 +96,70 @@ export interface SiteConfig {
     yandexMetrikaId?: string;
     googleAnalyticsId?: string;
   };
+}
+
+// Тип для поста блога (WordPress)
+export type BlogPost = {
+  id: number;
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  image: string;
+  category: string;
+  date: string;
+  modified?: string;
+  author: string;
+  tags: string[];
+  readTime: string;
+  featured: boolean;
+  // Добавьте другие поля, если нужно
+};
+
+// Типы для WordPress API
+export interface WordPressPost {
+  id: number;
+  slug: string;
+  title: { rendered: string };
+  excerpt: { rendered: string };
+  content: { rendered: string };
+  date: string;
+  modified: string;
+  author: number;
+  featured_media: number;
+  categories: number[];
+  tags: number[];
+  _embedded?: any;
+  // Добавьте другие поля по необходимости
+}
+
+export interface WordPressCategory {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string;
+}
+
+export interface WordPressTag {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string;
+}
+
+export interface BlogApiResponse {
+  posts: BlogPost[];
+  totalPages: number;
+  totalPosts: number;
+  currentPage: number;
+}
+
+export interface BlogSearchParams {
+  page?: number;
+  perPage?: number;
+  search?: string;
+  categories?: number[];
+  tags?: number[];
+  orderBy?: string;
+  order?: 'asc' | 'desc';
 } 
